@@ -1,0 +1,189 @@
+<?php
+    echo $this->partial('/partials/menu');
+?>
+<?php
+$title = 'Order rows';
+$this->headTitle($title);
+?>
+<h1><?php echo $this->translate($title); ?></h1>
+<h3><?php echo $this->translate('Order number').': '.$order->identifier.'-'.sprintf('%1$06d', $order->id)?></h3>
+<?php
+	$form = $this->form;
+	$form->setAttribute('action', $this->url('orderProduct/index', array('id' => $order->id)));
+	$form->prepare();
+	echo $this->form()->openTag($form);
+?>
+<?php 
+	if ($current_role == 'resp_commande' && ($order->status == 'A générer' || $order->status == 'Nouvelle')) $updatable = true;
+	else $updatable = false;
+?>
+<table class="table">
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+<?php if ($updatable) : ?>
+		<td colspan="3">&nbsp;</td>
+<?php endif;?>
+		<td colspan="11">
+			<a href="<?php echo $this->url('order');?>"><?php echo $this->translate('Return to orders') ?></a>&nbsp;&nbsp;|&nbsp;&nbsp;
+			<a href="<?php echo $this->url('orderWithdrawal/index', array('id' => $order->id));?>"><?php echo $this->translate('Withdrawals') ?></a>
+		</td>
+	</tr>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+<?php if ($updatable) : ?>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+<?php endif;?>
+		<td>&nbsp;</td>
+		<td align="center"><strong><a href="<?php echo $this->url('orderProduct/index', array('id' => $order->id)) ?>
+											?major=caption
+											<?php if ($major == 'caption' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Caption');?></strong></td>
+		<td align="center"><strong><a href="<?php echo $this->url('orderProduct/index', array('id' => $order->id)) ?>
+											?major=price
+											<?php if ($major == 'price' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Price');?></strong></td>
+		<td align="center"><strong><?php echo $this->translate('Options');?></strong></td>
+		<td align="center"><strong><?php echo $this->translate('Net');?></strong></td>
+		<td align="center"><strong><a href="<?php echo $this->url('orderProduct/index', array('id' => $order->id)) ?>
+											?major=hoped_delivery_date
+											<?php if ($major == 'hoped_delivery_date' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Hoped delivery');?></strong></td>
+		<td align="center"><strong><a href="<?php echo $this->url('orderProduct/index', array('id' => $order->id)) ?>
+											?major=n_fn
+											<?php if ($major == 'n_fn' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Contact');?></strong></td>
+		<td align="center"><strong><a href="<?php echo $this->url('orderProduct/index', array('id' => $order->id)) ?>
+											?major=building
+											<?php if ($major == 'building' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Building');?></strong></td>
+		<td align="center"><strong><a href="<?php echo $this->url('orderProduct/index', array('id' => $order->id)) ?>
+											?major=floor
+											<?php if ($major == 'floor' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Floor');?></strong></td>
+		<td align="center"><strong><a href="<?php echo $this->url('orderProduct/index', array('id' => $order->id)) ?>
+											?major=department
+											<?php if ($major == 'department' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Department');?></strong></td>
+	</tr>
+<?php if ($updatable) : ?>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+		<td colspan="14"><a href="<?php echo $this->url('orderProduct/add', array('id' => $order->id));?>"><img height="12" src="/images/plus.png" alt="<?php echo $this->translate('Add') ?>" /></a></td>
+	</tr>
+<?php endif;?>
+<?php $sum = 0; $netSum = 0; ?>	
+<?php foreach ($orderProducts as $orderProduct) : ?>
+	<?php 
+		$sum += $orderProduct->price;
+		$net = $orderProduct->price + $orderProduct->option_price;
+		$netSum += $net;
+	 ?>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+	<?php if ($updatable) : ?>
+		<?php
+			$element = $form->get('product'.$orderProduct->id);
+		?>
+        <td><?php echo $this->formElement($element) ?></td>
+		<td><a href="<?php echo $this->url('orderProduct/update', array('id' => $orderProduct->id));?>"><img height="12" src="/images/edit_2.png" alt="<?php echo $this->translate('Update') ?>" /></a></td>
+        <td><a href="<?php echo $this->url('orderProduct/delete', array('id' => $orderProduct->id));?>"><img height="12" src="/images/eraser.png" alt="<?php echo $this->translate('Delete') ?>" /></a></td>
+    <?php endif;?>
+		<td><a href="<?php echo $this->url('orderProductOption/index', array('id' => $orderProduct->id));?>"><?php echo $this->translate('Options') ?></a></td>
+		<td align="center"><?php echo $orderProduct->caption ?></td>
+		<td align="right"><?php echo number_format($orderProduct->price,2,',',' ').' €' ?></td>
+	<?php if ($orderProduct->option_price != 0) : ?>
+		<td align="right"><?php echo number_format($orderProduct->option_price,2,',',' ').' €' ?></td>
+	<?php else : ?>
+		<td align="right">&nbsp;</td>
+	<?php endif;?>
+		<td align="right"><?php echo number_format($net,2,',',' ').' €' ?></td>
+		<td align="center"><?php echo $orderProduct->hoped_delivery_date ?></td>
+		<td align="center"><?php echo $orderProduct->n_fn ?></td>
+		<td align="center"><?php echo $orderProduct->building ?></td>
+		<td align="center"><?php echo $orderProduct->floor ?></td>
+		<td align="center"><?php echo $orderProduct->department ?></td>
+		</tr>
+<?php endforeach; ?>
+
+	<!--  Check all + order sum  -->
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+<?php if ($updatable) : ?>
+		<td colspan="3">
+			<?php echo $this->formElement($form->get('check_all')) ?>&nbsp;&nbsp;
+			<?php echo $this->translate('Select all') ?>
+		</td>
+<?php endif;?>
+		<td colspan="2" align="right"><strong><?php echo $this->translate('Sum')?></strong></td>
+		<td align="right"><strong><?php echo number_format($sum,2,',',' ').' €' ?></strong></td>
+		<td>&nbsp;</td>
+		<td align="right"><strong><?php echo number_format($netSum,2,',',' ').' €' ?></strong></td>
+		<td colspan="5">&nbsp;</td>
+	</tr>
+	
+<?php if ($updatable) : ?>
+	<!--  Batch update : contact -->
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+	<?php
+		$element = $form->get('update_contact');
+		$element->setAttribute('class', 'btn btn-primary');
+	?>
+		<td colspan="5" align="right">
+			<?php echo $this->formElement($element) ?>
+		</td>
+	<?php
+		$element = $form->get('contact_id');
+	?>
+		<td colspan="9" align="left">
+			<?php echo $this->formElement($element) ?>
+		</td>
+	</tr>
+	
+	<!--  Batch update : hoped delivery date -->
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+	<?php
+		$element = $form->get('update_hoped_delivery_date');
+		$element->setAttribute('class', 'btn btn-primary');
+	?>
+		<td colspan="5" align="right">
+			<?php echo $this->formElement($element) ?>
+		</td>
+	<?php
+		$element = $form->get('hoped_delivery_date');
+	?>
+		<td colspan="9" align="left">
+			<?php echo $this->formElement($element) ?>
+		</td>
+	</tr>
+	
+	<!--  Batch update : destination -->
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+	<?php
+		$element = $form->get('update_destination');
+		$element->setAttribute('class', 'btn btn-primary');
+	?>
+		<td colspan="5" align="right">
+			<?php echo $this->formElement($element) ?>
+		</td>
+	<?php
+		?>
+		<td colspan="9" align="left">
+		<?php echo $this->formElement($form->get('building')) ?>&nbsp;&nbsp;
+		<?php echo $this->formElement($form->get('floor')) ?>&nbsp;&nbsp;
+		<?php echo $this->formElement($form->get('department')) ?>&nbsp;&nbsp;
+		<?php echo $this->formElement($form->get('comment')) ?>
+		</td>
+	</tr>
+<?php endif;?>
+</table>
+<?php echo $this->form()->closeTag();?>
+
+<script>
+function checkAll() {
+<?php foreach ($orderProducts as $orderProduct) :?>
+	if (document.getElementById("check_all").checked) {
+		document.getElementById("product<?php echo $orderProduct->id ?>").checked = true;
+	}
+	else {
+		document.getElementById("product<?php echo $orderProduct->id ?>").checked = false;
+	}
+<?php endforeach;?>
+}
+</script>

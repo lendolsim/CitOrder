@@ -1,0 +1,19 @@
+<?php
+    echo $this->partial('/partials/menu');
+?>
+<?php
+$title = 'Update an order row';
+$this->headTitle($title);
+?>
+<h1><?php echo $this->translate($title); ?></h1>
+<h3>
+	<?php echo $this->translate('Order').' '.$order->identifier.'-'.sprintf('%1$06d', $order->id)?> - 
+	<?php echo substr($order->order_date, 8, 2).'/'.substr($order->order_date, 5, 2).'/'.substr($order->order_date, 0, 4) ?>
+	</h3>
+<h3><?php echo $this->translate('Site').' '.$site->caption ?></h3>
+<h3><?php echo $this->translate('Product').' '.$orderProduct->caption ?></h3>
+<?php
+    echo $this->partial('/partials/generic-form', array('route' => 'orderProduct/update', 'form' => $this->form, 'id' => $id, 'returnUrl' => $this->url('orderProduct/index', array('id' => $order->id))));
+?>
+
+

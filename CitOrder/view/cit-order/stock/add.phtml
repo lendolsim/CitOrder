@@ -1,0 +1,28 @@
+<?php
+    echo $this->partial('/partials/menu');
+?>
+<?php
+$title = 'Add a stock unit';
+$this->headTitle($title);
+?>
+<h1><?php echo $this->translate($title); ?></h1>
+<?php
+    echo $this->partial('/partials/generic-form', array('route' => 'stock/add', 'form' => $this->form, 'returnUrl' => $this->url('stock')));
+?>
+
+<script>
+function displayBrandModel() {
+<?php foreach ($products as $product) : ?>
+	if (document.getElementById("product_id").value == "") {
+		document.getElementById("caption").value = "";
+		document.getElementById("brand").value = "";
+		document.getElementById("model").value = "";
+	}
+	else if (document.getElementById("product_id").value == "<?php echo $product->id ?>") {
+		document.getElementById("caption").value = "<?php echo $product->caption ?>";
+		document.getElementById("brand").value = "<?php echo $product->brand ?>";
+		document.getElementById("model").value = "<?php echo $product->model ?>";
+	}
+<?php endforeach;?>
+}
+</script>

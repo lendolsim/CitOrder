@@ -1,0 +1,92 @@
+BEGIN
+	DECLARE v_finished INT DEFAULT 0;
+    DECLARE v_id,
+    		v_year,
+    		v_age,
+            v_seniority,
+            v_annual_contract_rem,
+            v_working_days,
+            v_upper_value INT;
+    DECLARE v_age_bracket,
+    		v_seniority_bracket,
+            v_contract_rem_bracket,
+            v_variable,
+            v_source_value VARCHAR(255);
+    DECLARE v_birthdate,
+    		v_start_date DATE;
+
+	-- Declare the cursor
+	DECLARE contract_cursor CURSOR FOR 
+    	SELECT id, year, birthdate, start_date, annual_contract_rem FROM hr_ti_contract_extract_ann WHERE 1;
+
+ 	-- declare NOT FOUND handler
+ 	DECLARE CONTINUE HANDLER 
+ 		FOR NOT FOUND SET v_finished = 1;
+
+	-- Empty the temporary table
+	TRUNCATE hr_ti_contract_compute_ann;
+
+	-- Open the cursor
+	OPEN contract_cursor;
+
+	-- The loop
+	contract_loop: LOOP
+
+ 		FETCH contract_cursor INTO
+            v_id,
+            v_year,
+            v_birthdate,
+            v_start_date,
+            v_annual_contract_rem;
+
+		IF v_finished = 1 THEN 
+			LEAVE contract_loop;
+		END IF;
+
+		-- Retrieve the age bracket
+        SET v_age = v_year - YEAR(v_birthdate);
+        
+		SELECT variable, MIN(upper_value) INTO v_variable, v_age_bracket FROM hr_tr_contract 
+        	WHERE variable = 'age_bracket' AND
+            	  v_age < upper_value;
+
+		SELECT variable, upper_value, target_value INTO v_variable, v_upper_value, v_age_bracket FROM hr_tr_contract
+            WHERE variable = 'age_bracket' AND
+	              upper_value = v_age_bracket;
+
+		-- Compute the seniority and retrieve the seniority bracket
+        SET v_seniority = v_year - YEAR(v_start_date);
+
+		SELECT variable, MIN(upper_value) INTO v_variable, v_seniority_bracket FROM hr_tr_contract 
+        	WHERE variable = 'seniority_bracket' AND
+            	  v_seniority < upper_value
+           	GROUP BY variable;
+
+		SELECT variable, upper_value, target_value INTO v_variable, v_upper_value, v_seniority_bracket FROM hr_tr_contract
+            WHERE variable = 'seniority_bracket' AND
+	              upper_value = v_seniority_bracket;
+
+		-- Retrieve the remuneration bracket
+		SELECT variable, MIN(upper_value) INTO v_variable, v_contract_rem_bracket FROM hr_tr_contract 
+        	WHERE variable = 'rem_bracket' AND
+            	  v_annual_contract_rem < upper_value
+           	GROUP BY variable;
+           	
+		SELECT variable, upper_value, target_value INTO v_variable, v_upper_value, v_contract_rem_bracket FROM hr_tr_contract
+            WHERE variable = 'rem_bracket' AND
+	              upper_value = v_contract_rem_bracket;
+        
+        -- Insert the new row
+		INSERT INTO hr_ti_contract_compute_ann
+        VALUES (
+            v_id,
+            v_age,
+            v_age_bracket,
+            v_seniority,
+            v_seniority_bracket,
+            v_contract_rem_bracket);
+ 
+ 	END LOOP contract_loop;
+
+	CLOSE contract_cursor;
+END

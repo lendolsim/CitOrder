@@ -1,0 +1,12 @@
+<?php
+    echo $this->partial('/partials/menu');
+?>
+<?php
+$title = 'Add a site';
+$this->headTitle($title);
+?>
+<h1><?php echo $this->translate($title); ?></h1>
+<br>
+<?php
+    echo $this->partial('/partials/generic-form', array('route' => 'site/add', 'form' => $this->form, 'returnUrl' => $this->url('site')));
+?>

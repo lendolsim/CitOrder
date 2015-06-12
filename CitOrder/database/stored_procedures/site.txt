@@ -1,0 +1,35 @@
+BEGIN
+	TRUNCATE site;
+	INSERT INTO site
+        SELECT NULL,
+        	   client.id,
+        	   csv.direction,
+               NULL, -- description
+               NULL, -- contact_id
+               NULL, -- nom_demandeur
+               NULL, -- nom_valideur
+               NULL, -- type
+               NULL, -- effectif
+               NULL, -- superficie
+               NULL, -- nb_etage
+               csv.adresse,
+               NULL, -- complt_adresse
+               csv.code_postal,
+               csv.ville,
+               csv.zone_geographique,
+               NULL, -- pays
+               csv.contrainte_logistique,
+               csv.accessibilite_livraison,
+               csv.horaires_logistiques,
+               CURRENT_TIMESTAMP,
+               NULL,
+               CURRENT_TIMESTAMP,
+               NULL,
+               NULL, NULL, NULL, NULL
+        FROM ti_perimetre_commande AS perimetre
+        LEFT OUTER JOIN ti_export_commande AS csv
+        ON perimetre.reference = csv.direction
+        LEFT OUTER JOIN client
+        ON csv.deployment_name = client.nom
+        GROUP BY perimetre.reference;
+END

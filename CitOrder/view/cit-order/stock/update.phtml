@@ -1,0 +1,11 @@
+<?php
+    echo $this->partial('/partials/menu');
+?>
+<?php
+$title = 'Update a stock unit';
+$this->headTitle($title);
+?>
+<h1><?php echo $this->translate($title); ?></h1>
+<?php
+    echo $this->partial('/partials/generic-form', array('route' => 'stock/update', 'form' => $this->form, 'id' => $id, 'returnUrl' => $this->url('stock')));
+?>

@@ -1,0 +1,21 @@
+<?php
+    echo $this->partial('/partials/menu');
+?>
+<?php
+$this->headTitle($title);
+?>
+<div class="row">
+    <div class="col-md-6">
+		<div class="panel panel-default">
+            <div class="panel-heading">
+				<strong><?php echo $this->translate($title);?></strong>
+            </div>
+           	<div class="panel-body">
+<h3 align="center"><?php echo $this->translate('Order validation Request');?></h3>
+<?php
+    echo $this->partial('/partials/generic-form', array('route' => 'order/validate', 'id' => $id, 'header' => $header, 'form' => $this->form, 'returnUrl' => $this->url('order')));
+?>
+			</div>
+		</div>
+	</div>
+</div>

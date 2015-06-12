@@ -1,0 +1,6 @@
+BEGIN
+	TRUNCATE ti_perimetre_commande;
+	INSERT INTO ti_perimetre_commande
+        SELECT DISTINCT	NULL, csv.direction
+        FROM ti_export_commande AS csv;
+END

@@ -1,0 +1,6 @@
+BEGIN
+	TRUNCATE md_customer;
+	INSERT INTO md_customer
+        SELECT DISTINCT NULL, 1, csv.deployment_name, CURRENT_TIMESTAMP, NULL, CURRENT_TIMESTAMP, NULL
+        FROM ti_export_commande AS csv;
+END

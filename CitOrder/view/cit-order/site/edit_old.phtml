@@ -1,0 +1,23 @@
+<?php
+    echo $this->partial('/partials/menu');
+?>
+<?php
+$title = 'Update a site';
+$form = $this->form;
+?>
+<h1><?php echo $this->translate($title); ?></h1>
+<?php echo $form->get('caption')->getLabel()."&nbsp;"."&nbsp;".$form->get('caption')->getValue();?><br>
+<?php echo $form->get('description')->getLabel()."&nbsp;"."&nbsp;".$form->get('description')->getValue();?><br>
+<?php echo $form->get('region')->getLabel()."&nbsp;"."&nbsp;".$form->get('region')->getValue();?><br>
+<?php echo $form->get('type')->getLabel()."&nbsp;"."&nbsp;".$form->get('type')->getValue();?><br>
+<?php echo $form->get('nb_people')->getLabel()."&nbsp;"."&nbsp;".$form->get('nb_people')->getValue();?><br>
+<?php echo $form->get('surface')->getLabel()."&nbsp;"."&nbsp;".$form->get('surface')->getValue();?><br>
+<?php echo $form->get('nb_floors')->getLabel()."&nbsp;"."&nbsp;".$form->get('nb_floors')->getValue();?><br>
+<?php echo $form->get('address_street')->getLabel()."&nbsp;"."&nbsp;".$form->get('address_street')->getValue();?><br>
+<?php echo $form->get('address_complt')->getLabel()."&nbsp;"."&nbsp;".$form->get('address_complt')->getValue();?><br>
+<?php echo $form->get('address_zip')->getLabel()."&nbsp;"."&nbsp;".$form->get('address_zip')->getValue();?><br>
+<?php echo $form->get('address_city')->getLabel()."&nbsp;"."&nbsp;".$form->get('address_city')->getValue();?><br>
+<?php echo $form->get('address_country')->getLabel()."&nbsp;"."&nbsp;".$form->get('address_country')->getValue();?><br>
+<?php
+    echo $this->partial('/partials/generic-form', array('route' => 'site/edit', 'form' => $this->form, 'id' => $this->id, 'returnUrl' => $this->url('site')));
+?>

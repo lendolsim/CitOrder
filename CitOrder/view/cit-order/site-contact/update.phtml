@@ -1,0 +1,8 @@
+<?php
+$title = 'Update a site';
+
+?>
+<h1><?php echo $this->translate($title); ?></h1>
+<?php
+    echo $this->partial('/partials/generic-form', array('route' => 'site/update', 'form' => $this->form, 'id' => $this->id, 'returnUrl' => $this->url('site')));
+?>

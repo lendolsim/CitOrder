@@ -1,0 +1,132 @@
+<?php
+$title = $this->translate('Order row options');
+$this->headTitle($title);
+?>
+<?php
+    echo $this->partial('/partials/menu');
+?>
+<h3><?php echo $this->escapeHtml($title); ?></h3>
+<br>
+<div class="row">
+    <div class="col-md-8">
+		<div class="panel panel-default">
+            <div class="panel-heading">
+				<strong><?php echo $this->translate("Product").' '.$product->caption.' '.$product->model;?></strong>
+            </div>
+           	<div class="panel-body">
+<?php
+	$form = $this->form;
+	$form->setAttribute('action', $this->url('orderProductOption/index', array('id' => $this->id)));
+	$form->prepare();
+	echo $this->form()->openTag($form);
+?>
+<?php 
+	if ($current_role == 'resp_commande' && ($order->status == 'A générer' || $order->status == 'Nouvelle')) $updatable = true;
+	else $updatable = false;
+?>
+<table class="table table-condensed">
+<tr>
+	<th>&nbsp;</td>
+	<th><?php echo $this->translate('Option') ?></td>
+	<th><?php echo $this->translate('Description') ?></td>
+	<th><?php echo $this->translate('Price') ?></td>
+</tr>
+<?php
+	foreach ($options as $option) : ?>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+		<td><?php
+				$element = $form->get('option'.$option->id);
+	            $element->setAttribute('class', 'form-control');
+				if (!$updatable) $element->setAttribute('Disabled', 'Disabled');
+	            echo $this->formElement($element);
+			?>
+		</td>
+		<td><?php echo $this->escapeHtml($option->caption);?></td>
+	 	<td><?php echo $this->escapeHtml($option->description);?></td>
+	 	<td align="right"><?php echo number_format($option->price,2,',',' ').' €' ?></td>
+	</tr>
+<?php endforeach; ?>
+<tr>
+	<td colspan="3" align="right"><strong><?php echo $this->translate('Sum')?></strong></td>
+	<td align="right"><strong id="sum"><?php echo number_format($sum,2,',',' ').' €' ?></strong></td>
+</tr>
+<tr>
+	<td colspan="2">&nbsp;</td>
+	<td>
+<?php if ($updatable) : ?>
+	<?php $form->get('submit')->setAttribute('class', 'btn btn-primary')?>
+	<?php echo $this->formElement($form->get('submit'))?>
+<?php endif;?>
+	<a href="<?php echo $this->url('orderProduct/index', array('action' => 'index', 'id' => $order->id))?>">&nbsp;&nbsp;
+			<?php echo $this->translate('Cancel')?></a>
+	</td>
+	<td>&nbsp;</td>
+</tr>
+</table>
+<?php 
+echo $this->form()->closeTag();
+?>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+function update() {
+
+	// Update the sum
+	var sum = 0;
+<?php foreach ($options as $option) : ?>
+	if (document.getElementById("option<?php echo $option->id?>").checked) sum += <?php echo $option->price ?>	
+<?php endforeach;?>
+	document.getElementById("sum").innerHTML = sum + ",00 €";
+}
+
+<?php foreach ($options as $option) : ?>
+function check<?php echo $option->id ?>() {
+
+	// Check the constraints between options
+	<?php foreach ($matrix as $cell) : ?>
+
+		// Case of a change on the option which is on matrix rows
+		<?php if ($cell->row_option_id == $option->id) : ?>
+
+	// Case of a dependency
+	if (<?php echo $cell->constraint ?> == 1) {
+		if (document.getElementById("option<?php echo $cell->row_option_id ?>").checked) {
+			document.getElementById("option<?php echo $cell->col_option_id ?>").checked = true;
+			check<?php echo $cell->col_option_id ?>();
+		}
+	}
+	// Case of an exclusion
+	else if (<?php echo $cell->constraint ?> == 2) {
+		if (document.getElementById("option<?php echo $cell->row_option_id ?>").checked) {
+			document.getElementById("option<?php echo $cell->col_option_id ?>").checked = false;
+			check<?php echo $cell->col_option_id ?>();
+		}
+	}
+		<?php endif;?>
+		// Case of a change on the option which is on matrix columns
+		<?php if ($cell->col_option_id == $option->id) : ?>
+	// Case of a dependency
+	if (<?php echo $cell->constraint ?> == 1) {
+		if (!document.getElementById("option<?php echo $cell->col_option_id ?>").checked) {
+			document.getElementById("option<?php echo $cell->row_option_id ?>").checked = false;
+			check<?php echo $cell->row_option_id ?>();
+		}
+	}
+	// Case of an exclusion
+	else if (<?php echo $cell->constraint ?> == 2) {
+		if (document.getElementById("option<?php echo $cell->col_option_id ?>").checked) {
+			document.getElementById("option<?php echo $cell->row_option_id ?>").checked = false;
+			check<?php echo $cell->row_option_id ?>();
+		}
+	}
+		<?php endif;?>
+	<?php endforeach;?>
+
+	// Update the option price sum
+	update();
+}
+<?php endforeach;?>
+</script>

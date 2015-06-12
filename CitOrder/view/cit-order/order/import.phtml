@@ -1,0 +1,100 @@
+<?php
+    echo $this->partial('/partials/menu');
+?>
+<?php
+$title = 'Order import';
+$this->headTitle($title);
+?>
+<h1><?php echo $this->translate($title); ?></h1>
+<?php if (!$ok) : ?>
+<table class="table">
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+		<td style="color: red" colspan="3"><strong><?php echo $this->translate("Errors were found, the file cannot be imported:") ?></strong></td>
+	</tr>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+		<td align="center"><strong><?php echo $this->translate('Line number');?></strong></td>
+		<td align="center"><strong><?php echo $this->translate('Column number');?></strong></td>
+		<td align="left"><strong><?php echo $this->translate('Error');?></strong></td>
+	</tr>
+	<?php foreach ($errors as $error) : ?>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+		<td align="center"><?php echo $error['line'] ?></td>
+		<td align="center"><?php echo $error['column'] ?></td>
+		<td align="left"><?php echo $this->translate($error['caption']) ?></td>
+	</tr>
+	<?php endforeach; ?>
+</table>
+<?php else : ?>
+<table class ="table">
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+		<td align="center"><small><strong><?php echo $this->translate('Identifier');?></strong></small></td>
+		<td align="center"><small><strong><?php echo $this->translate('Site caption');?></strong></small></td>
+		<td align="center"><small><strong><?php echo $this->translate('Order date');?></strong></small></td>
+		<td align="center"><small><strong><?php echo $this->translate('Order caption');?></strong></small></td>
+		<td align="center"><small><strong><?php echo $this->translate('Description');?></strong></small></td>
+		<td align="center"><small><strong><?php echo $this->translate('Nb people');?></strong></small></td>
+		<td align="center"><small><strong><?php echo $this->translate('Surface');?></strong></small></td>
+		<td align="center"><small><strong><?php echo $this->translate('Nb floors');?></strong></small></td>
+		<td align="center"><small><strong><?php echo $this->translate('Type de ligne');?></strong></small></td>
+		<td align="center"><small><strong><?php echo $this->translate('Product caption');?></strong></small></td>
+	<?php for ($i = 1; $i < 16; $i++) : ?>
+		<td align="center"><small><strong><?php echo $this->translate('Option'.' '.$i);?></strong></small></td>
+	<?php endfor;?>
+		<td align="center"><small><strong><?php echo $this->translate('Contact');?></strong></small></td>
+		<td align="center"><small><strong><?php echo $this->translate('Hoped delivery');?></strong></small></td>
+		<td align="center"><small><strong><?php echo $this->translate('Building');?></strong></small></td>
+		<td align="center"><small><strong><?php echo $this->translate('Floor');?></strong></small></td>
+		<td align="center"><small><strong><?php echo $this->translate('Department');?></strong></small></td>
+		<td align="center"><small><strong><?php echo $this->translate('Comment');?></strong></small></td>
+	</tr>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+		<td colspan="29"><small><strong><?php echo $this->translate("The file is valid, the following rows will be imported:") ?></strong></small></td>
+	</tr>
+
+	<!-- OK -->
+	<?php foreach ($not_duplicate as $row) : ?>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+		<?php for ($i = 0; $i < count($row); $i++) : ?>
+		<td align="center"><small><?php echo $row[$i] ?></small></td>
+		<?php endfor;?>
+	</tr>
+	<?php endforeach; ?>
+
+	<!-- Duplicate ones -->
+	<?php if (count($duplicate) > 0) : ?>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+		<td colspan="29"><small><strong><?php echo $this->translate("The following rows already exist and will be ignored:") ?></strong></small></td>
+	</tr>
+	<?php endif;?>
+	<?php foreach ($duplicate as $row) : ?>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+	<?php for ($i = 0; $i < count($row); $i++) : ?>
+		<td align="center"><small><?php echo $row[$i] ?></small></td>
+	<?php endfor;?>
+	</tr>
+	<?php endforeach; ?>
+
+	<!-- Unconsistent ones -->
+	<?php if (count($not_consistent) > 0) : ?>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+		<td colspan="29"><small><strong><?php echo $this->translate('The following rows have unconsistent options and are ignored:') ?></strong></small></td>
+	</tr>
+	<?php endif;?>
+	<?php foreach ($not_consistent as $row) : ?>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+	<?php for ($i = 0; $i < count($row); $i++) : ?>
+		<td align="center"><small><?php echo $row[$i] ?></small></td>
+	<?php endfor;?>
+	</tr>
+	<?php endforeach; ?>
+	</table>
+<?php endif;?>
+<?php $url = $this->url('order/import', array('id' => $this->id));?>
+<form action="<?php echo $url; ?>" method="post">
+<div>
+    <input type="hidden" name="id" value="<?php echo (int) $this->id; ?>" />
+    <input type="submit" class="btn btn-primary" name="confirm" value="<?php echo $this->translate('Import the data') ?>" />
+    &nbsp;&nbsp;
+	<a href="<?php echo $this->url('link/index', array ('id' => 3));?>"><?php echo $this->translate('Cancel') ?></a>
+</div>
+</form>

@@ -1,0 +1,140 @@
+<?php 
+	function isAllowed($user, $route, $table = null, $column = null, $value = null) {
+		$isAllowed = true;
+		if (!isset($user->allowedRoutes[$route])) return false;
+		if ($value) {
+			foreach ($user->perimeters as $perimeter) {
+				if ($perimeter->table != $table) return false;
+				elseif ($perimeter->column != $column) return false;
+				elseif ($perimeter->value != $value) return false;
+			}
+		}
+		return true;
+	}
+?>
+
+<?php
+    echo $this->partial('/partials/menu');
+?>
+<?php
+$title = 'Order withdrawals';
+$this->headTitle($title);
+?>
+<h1><?php echo $this->translate($title); ?></h1>
+<!-- <h3><?php echo $this->translate('Responsible').': '.$responsible->n_fn ?></h3> -->
+<h3><?php echo $this->translate('Order number').': '.$order->identifier.'-'.sprintf('%1$06d', $order->id)?></h3>
+<?php
+	$form = $this->form;
+	$form->setAttribute('action', $this->url('orderWithdrawal/index', array('id' => $order->id)));
+	$form->prepare();
+	echo $this->form()->openTag($form);
+?>
+<?php 
+	if (isAllowed($current_user, 'orderWithdrawal/update') && ($order->status == 'A générer' || $order->status == 'Nouvelle')) $updatable = true;
+	else $updatable = false;
+?>
+<table class="table">
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+		<td colspan="7">
+			<a href="<?php echo $this->url('order');?>"><?php echo $this->translate('Return to orders') ?></a>
+		</td>
+	</tr>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+		<td align="center"><?php echo $this->translate('Withdrawal') ?></td>
+		<td align="center"><strong><a href="<?php echo $this->url('orderWithdrawal/index', array('id' => $order->id)) ?>
+											?major=caption
+											<?php if ($major == 'caption' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Caption');?></strong></td>
+		<td align="center"><strong><a href="<?php echo $this->url('orderWithdrawal/index', array('id' => $order->id)) ?>
+											?major=brand
+											<?php if ($major == 'brand' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Brand');?></strong></td>
+		<td align="center"><strong><a href="<?php echo $this->url('orderWithdrawal/index', array('id' => $order->id)) ?>
+											?major=model
+											<?php if ($major == 'model' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Model');?></strong></td>
+		<td align="center"><strong><a href="<?php echo $this->url('orderWithdrawal/index', array('id' => $order->id)) ?>
+											?major=building
+											<?php if ($major == 'building' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Building');?></strong></td>
+		<td align="center"><strong><a href="<?php echo $this->url('orderWithdrawal/index', array('id' => $order->id)) ?>
+											?major=floor
+											<?php if ($major == 'floor' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Floor');?></strong></td>
+		<td align="center"><strong><a href="<?php echo $this->url('orderWithdrawal/index', array('id' => $order->id)) ?>
+											?major=place
+											<?php if ($major == 'place' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Place');?></strong></td>
+	</tr>
+<?php foreach ($stocks as $stock) : ?>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+	<?php if (!$stock->order_id || $stock->order_id == $order->id) : ?>
+		<?php 
+			$element = $form->get('stock'.$stock->id);
+	        $element->setAttribute('class', 'form-control');
+			$selectable = true;
+			if (!$updatable) $element->setAttribute('Disabled', 'Disabled');
+		?>
+        <td align="center"><?php echo $this->formElement($element) ?></td>
+        <td align="center"><?php echo $stock->caption ?></td>
+		<td align="center"><?php echo $stock->brand ?></td>
+		<td align="center"><?php echo $stock->model ?></td>
+		<td align="center"><?php echo $stock->building ?></td>
+		<td align="center"><?php echo $stock->floor ?></td>
+		<td align="center"><?php echo $stock->place ?></td>
+	<?php else : ?>
+        <td align="center"><em><small><?php echo $stock->identifier.'-'.sprintf('%1$06d', $stock->order_id) ?></small></em></td>
+		<td align="center"><em><?php echo $stock->caption ?></em></td>
+		<td align="center"><em><?php echo $stock->brand ?></em></td>
+		<td align="center"><em><?php echo $stock->model ?></em></td>
+		<td align="center"><em><?php echo $stock->building ?></em></td>
+		<td align="center"><em><?php echo $stock->floor ?></em></td>
+		<td align="center"><em><?php echo $stock->place ?></em></td>
+	<?php endif;?>
+	</tr>
+<?php endforeach; ?>
+
+	<!-- Check all -->
+<?php if ($updatable) : ?>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+		<td align="center">
+			<?php echo $this->formElement($form->get('check_all')) ?>
+		</td>
+		<td colspan="6">
+			<?php echo $this->translate('Select all') ?>
+		</td>
+	</tr>
+<?php endif;?>
+
+	<!--  Submit button -->
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+	<?php
+		$element = $form->get('withdraw');
+		$element->setAttribute('class', 'btn btn-primary');
+	?>
+		<td colspan="3" align="right">
+<?php if ($updatable) : ?>
+		<?php echo $this->formElement($element) ?>
+<?php endif;?>
+		<a href="<?php echo $this->url('orderProduct/index', array('action' => 'index', 'id' => $order->id))?>">&nbsp;&nbsp;
+			<?php echo $this->translate('Cancel')?></a>
+		</td>
+		<td colspan="4">&nbsp;</td>
+	</tr>
+</table>
+<?php echo $this->form()->closeTag();?>
+
+<script>
+function checkAll() {
+<?php foreach ($stocks as $stock) :?>
+	<?php if (!$stock->order_id || $stock->order_id == $order->id) : ?>
+	if (document.getElementById("check_all").checked) {
+		document.getElementById("stock<?php echo $stock->id ?>").checked = true;
+	}
+	else {
+		document.getElementById("stock<?php echo $stock->id ?>").checked = false;
+	}
+	<?php endif;?>
+<?php endforeach;?>
+}
+</script>

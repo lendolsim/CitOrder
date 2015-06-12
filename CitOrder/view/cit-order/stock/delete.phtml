@@ -1,0 +1,22 @@
+<?php
+    echo $this->partial('/partials/menu');
+?>
+<?php
+
+$title = 'Delete a stock unit';
+$this->headTitle($title);
+?>
+<h1><?php echo $this->translate($title); ?></h1>
+<br>
+<?php
+$url = $this->url('stock/delete', array('id' => $this->id));
+?>
+<form action="<?php echo $url; ?>" method="post">
+<div>
+    <input type="hidden" name="id" value="<?php echo (int) $this->id; ?>" />
+    <input type="submit" class="btn btn-primary" name="del" value="<?php echo $this->translate('Yes') ?>" />
+    &nbsp;&nbsp;
+	<a href="<?php echo $this->url('stock');?>"><?php echo $this->translate('Cancel') ?></a>
+</div>
+</form>
+

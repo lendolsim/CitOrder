@@ -1,0 +1,122 @@
+<?php 
+	function isAllowed($user, $route, $table = null, $column = null, $value = null) {
+		if (!array_key_exists($route, $user->allowedRoutes)) return false;
+		if (!$value) return true;
+		else {
+			foreach ($user->perimeters as $perimeter) {
+				if ($perimeter->table == $table &&
+					$perimeter->column == $column && 
+					$perimeter->value == $value) {
+
+						return true;
+				}
+			}
+		}
+		return false;
+	}
+?>
+
+<?php
+    echo $this->partial('/partials/menu');
+?>
+<?php
+$title = 'Orders';
+$this->headTitle($title);
+?>
+<h1><?php echo $this->translate($title); ?></h1>
+<table class="table">
+<?php if (isAllowed($current_user, 'link/index')) : ?>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+		<td colspan="11">
+			<a href="<?php echo $this->url('link/index', array('id' => 3));?>"><?php echo $this->translate('CSV imports') ?></a>
+		</td>
+	</tr>
+<?php endif;?>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td align="center"><strong><?php echo $this->translate('Next step') ?></strong></td>
+		<td align="center"><strong><a href="<?php echo $this->url('order') ?>
+											?major=site_caption
+											<?php if ($major == 'site_caption' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Site');?></strong></td>
+		<td align="center"><strong><a href="<?php echo $this->url('order') ?>
+											?major=status
+											<?php if ($major == 'status' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Status');?></strong></td>
+		<td align="center"><strong><a href="<?php echo $this->url('order') ?>
+											?major=identifier
+											<?php if ($major == 'identifier' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Identifier');?></strong></td>
+		<td align="center"><strong><a href="<?php echo $this->url('order') ?>
+											?major=issue_date
+											<?php if ($major == 'issue_date' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Issue');?></strong></td>
+		<td align="center"><strong><a href="<?php echo $this->url('order') ?>
+											?major=retraction_limit
+											<?php if ($major == 'retraction_limit' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Retraction');?></strong></td>
+		<td align="center"><strong><a href="<?php echo $this->url('order') ?>
+											?major=finalized_order_date
+											<?php if ($major == 'finalized_order_date' && $dir =='ASC') echo '&dir=DESC'; else echo '&dir=ASC' ?>">
+			<?php echo $this->translate('Finalized order');?></strong></td>
+	</tr>
+<?php if (isAllowed($current_user, 'order/add')) : ?>
+	<tr>
+		<td colspan="11"><a href="<?php echo $this->url('order/add');?>"><img height="12" src="/images/plus.png" alt="<?php echo $this->translate('Add') ?>" /></a></td>
+	</tr>
+<?php endif;?>
+			
+<?php foreach ($orders as $order) : ?>
+	<?php if ($order->status == 'Importée') $stylText = 'style="color :red"'; else $stylText=''; ?>
+	<tr>
+	<?php 
+/*		if ($order->delegatee_id == $current_user->user_id) { $em = '<em>'; $endEm = '</em>'; }
+		else { $em = ''; $endEm = ''; } */
+	?>
+	<?php if (isAllowed($current_user, 'order/update', 'order_site', 'site_id', $order->site_id) && ($order->status == 'A générer' || $order->status == 'Nouvelle')) : ?>
+		<td><a href="<?php echo $this->url('order/update', array('id' => $order->id));?>"><img height="12" src="/images/edit_2.png" alt="<?php echo $this->translate('update') ?>" /></a></td>
+		<td><a href="<?php echo $this->url('order/delete', array('id' => $order->id));?>"><img height="12" src="/images/eraser.png" alt="<?php echo $this->translate('Delete') ?>" /></a></td>
+ 	<?php elseif ($order->status == 'Validée') : ?>
+ 		<td><a href="<?php echo $this->url('order/detail', array('id' => $order->id));?>"><img height="12" src="/images/zoom_plus_plain.png" alt="<?php echo $this->translate('detail') ?>" /></a></td>
+		<td><a href="<?php echo $this->url('order/pdf', array('id' => $order->id));?>"><img height="12" src="/images/print.png" alt="<?php echo $this->translate('pdf') ?>" /></a></td>
+	<?php else : ?>
+		<td><a href="<?php echo $this->url('order/detail', array('id' => $order->id));?>"><img height="12" src="/images/zoom_plus_plain.png" alt="<?php echo $this->translate('detail') ?>" /></a></td>
+		<td>&nbsp;</td>
+	<?php endif; ?>
+	
+	<?php if (isAllowed($current_user, 'order/update', 'order_site', 'site_id', $order->site_id) && ($order->status == 'A générer')) : ?>
+		<td align="center"><?php //echo $em ?><a href="<?php echo $this->url('orderProduct/index', array('id' => $order->id));?>" style="color: red"><?php echo $this->translate('Generate rows') ?></a><?php //echo $endEm ?></td>
+	<?php else : ?>
+		<td align="center"><?php //echo $em ?><a href="<?php echo $this->url('orderProduct/index', array('id' => $order->id));?>"><?php echo $this->translate('Rows') ?></a></td>
+	<?php endif; ?>
+		<td align="center"><?php //echo $em ?><a href="<?php echo $this->url('orderWithdrawal/index', array('id' => $order->id));?>"><?php echo $this->translate('Withdrawals') ?></a><?php //echo $endEm ?></td>
+
+	<?php if (isAllowed($current_user, 'order/start', 'order_site', 'site_id', $order->site_id) && $order->status == 'Importée') : ?>
+		<td align="center"><a style="color: red" href="<?php echo $this->url('order/start', array('id' => $order->id));?>"><?php echo $this->translate('Start order') ?></a></td>
+	<?php elseif (isAllowed($current_user, 'order/validationRequest', 'order_site', 'site_id', $order->site_id) && $order->status == 'Nouvelle') : ?>
+		<td align="center"><a href="<?php echo $this->url('order/validationRequest', array('id' => $order->id));?>"><?php echo $this->translate('Request validation') ?></a></td>
+	<?php elseif (isAllowed($current_user, 'order/validate', 'order_site', 'site_id', $order->site_id) && $order->status == 'A valider') : ?>
+		<td align="center"><a href="<?php echo $this->url('order/validate', array('id' => $order->id));?>"><?php echo $this->translate('Validate') ?></a></td>
+	<?php elseif (	isAllowed($current_user, 'order/retraction', 'order_site', 'site_id', $order->site_id)
+					&& $order->status == 'Emise'
+					&& $order->retraction_limit >= date('Y-m-d')) : ?>
+		<td align="center"><a href="<?php echo $this->url('order/retraction', array('id' => $order->id));?>"><?php echo $this->translate('Retraction') ?></a></td>
+	<?php else : ?>
+		<td>&nbsp;</td>
+	<?php endif; ?>
+		<td align="center" <?php echo $stylText ?>><?php //echo $em ?><?php echo $order->site_caption ?><?php //echo $endEm ?></td>
+		<td align="center" <?php echo $stylText ?>><?php //echo $em ?><?php echo $order->status ?><?php //echo $endEm ?></td>
+		<td align="center" <?php echo $stylText ?>><?php //echo $em ?><?php echo $order->identifier.'-'.sprintf('%1$06d', $order->id) ?><?php //echo $endEm ?></td>
+		<td align="center" <?php echo $stylText ?>><?php //echo $em ?><?php echo $order->issue_date ?><?php //echo $endEm ?></td>
+	<?php if ($order->retraction_date) : ?>
+		<td align="center" <?php echo $stylText ?>><?php //echo $em ?><?php echo $order->retraction_date ?><?php //echo $endEm ?></td>
+	<?php else : ?>
+		<td align="center" <?php echo $stylText ?>><?php //echo $em ?><?php echo $order->retraction_limit ?><?php //echo $endEm ?></td>
+	<?php endif;?>
+		<td align="center" <?php echo $stylText ?>><?php //echo $em ?><?php echo $order->finalized_order_date ?><?php //echo $endEm ?></td>		
+		</tr>
+<?php endforeach; ?>
+</table>

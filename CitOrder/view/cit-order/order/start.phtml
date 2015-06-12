@@ -1,0 +1,39 @@
+<?php
+    echo $this->partial('/partials/menu');
+?>
+<?php
+$this->headTitle($title);
+?>
+<div class="row">
+    <div class="col-md-6">
+		<div class="panel panel-default">
+            <div class="panel-heading">
+				<strong><?php echo $this->translate($title);?></strong>
+            </div>
+           	<div class="panel-body">
+<h3 align="center"><?php echo $this->translate('Start an imported order');?></h3>
+<div class="col-sm-12">&nbsp;</div>
+<?php foreach ($header as $element) : ?>
+	<?php if ($element['value'] == '') $element['value'] = '&nbsp;'?>
+    <div class="row">
+		<div class="col-md-4 align="right"><strong><?php echo $this->translate($element['label']) ?></strong></div>
+		<div class="col-md-8"><?php echo $element['value'] ?></div>
+	</div>
+<?php endforeach;?>
+<?php
+$url = $this->url('order/start', array('id' => $this->id));
+?>
+<div class="form-group">
+	<div class="col-sm-4 align="right">&nbsp;</strong></div>
+	<div class="col-sm-8">
+		<form action="<?php echo $url; ?>" method="post">
+    		<input type="hidden" name="id" value="<?php echo (int) $this->id; ?>" />
+    		<input type="submit" class="btn btn-primary" name="del" value="<?php echo $this->translate('Yes') ?>" />
+		    &nbsp;&nbsp;
+			<a href="<?php echo $this->url('order');?>"><?php echo $this->translate('Cancel') ?></a>
+		</form>
+			</div>
+		</div>
+	</div>
+</div>
+

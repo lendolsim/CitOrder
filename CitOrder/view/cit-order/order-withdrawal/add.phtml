@@ -1,0 +1,25 @@
+<?php
+    echo $this->partial('/partials/menu');
+?>
+<?php
+$title = 'Add a withdrawal';
+$this->headTitle($title);
+?>
+<h1><?php echo $this->translate($title); ?></h1>
+<h3><?php echo $this->translate('Order number').': '.$order->identifier.'-'.sprintf('%1$06d', $order->id)?></h3>
+<?php
+    echo $this->partial('/partials/generic-form', array('route' => 'orderWithdrawal/add', 'form' => $this->form, 'id'=>$id, 'returnUrl' => $this->url('orderWithdrawal/index', array('id' => $id))));
+?>
+
+<script>
+function displayIdentifier() {
+<?php foreach ($siteStocks as $siteStock) : ?>
+	if (document.getElementById("site_stock_id").value == "<?php echo $siteStock->stock_id ?>") {
+		document.getElementById("brand").value = "<?php echo $siteStock->brand ?>";
+		document.getElementById("model").value = "<?php echo $siteStock->model ?>";
+		document.getElementById("identifier").value = "<?php echo $siteStock->identifier ?>";
+		document.getElementById("serial_number").value = "<?php echo $siteStock->serial_number ?>";
+}
+<?php endforeach;?>
+}
+</script>

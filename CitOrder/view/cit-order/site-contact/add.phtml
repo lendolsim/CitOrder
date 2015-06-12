@@ -1,0 +1,11 @@
+<?php
+    echo $this->partial('/partials/menu');
+?>
+<?php
+$title = 'Add a contact';
+
+?>
+<h1><?php echo $this->translate($title); ?></h1>
+<?php
+    echo $this->partial('/partials/generic-form', array('route' => 'siteContact/add', 'form' => $this->form, 'id' => $this->id, 'returnUrl' => $this->url('siteContact')));
+?>

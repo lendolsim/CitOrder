@@ -1,0 +1,64 @@
+<?php 
+	function isAllowed($user, $route, $table = null, $column = null, $value = null) {
+		$isAllowed = true;
+		if (!isset($user->allowedRoutes[$route])) return false;
+		if ($value) {
+			foreach ($user->perimeters as $perimeter) {
+				if ($perimeter->table != $table) return false;
+				elseif ($perimeter->column != $column) return false;
+				elseif ($perimeter->value != $value) return false;
+			}
+		}
+		return true;
+	}
+?>
+
+<?php
+    echo $this->partial('/partials/menu');
+?>
+<?php
+$title = 'Sites';
+
+$this->headTitle($title);
+?>
+<h1><?php echo $this->translate($title); ?></h1>
+<table class="table">
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+		<td colspan="5">
+			<a href="<?php echo $this->url('link/index', array('id' => 1));?>"><?php echo $this->translate('CSV imports') ?></a>
+		</td>
+	</tr>
+	<tr >
+	    <th>&nbsp;</th>
+	    <th>&nbsp;</th>
+	    <th>&nbsp;</th>
+	    
+	    <th><?php echo $this->translate('Caption') ?> </th>
+	    <th><?php echo $this->translate('Main contact') ?> </th>
+	</tr>
+<?php if (isset($allowedRoutes['site/add'])) : ?>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+		<td colspan="6"><a href="<?php echo $this->url('site/add');?>"><img height="12" src="/images/plus.png" alt="<?php echo $this->translate('Add') ?>" /></a></td>
+	</tr>
+<?php endif;?>
+
+<?php foreach ($sites as $site) : ?>
+	<tr class="<?php echo $this->cycle(array("even", "odd"))->next();?>">
+	<?php if (isAllowed($current_user, 'site/update')) : ?>
+		<td><a href="<?php echo $this->url('site/update', array('id' => $site->id));?>"><img height="12" src="/images/edit_2.png" alt="Update" /></a></td>
+	    <td><a href="<?php echo $this->url('site/delete', array('id' => $site->id));?>"><img height="12" src="/images/eraser.png" alt="Delete" /></a></td>
+		<?php if ($site->contact_id) : ?>
+		    <td><a href="<?php echo $this->url('siteContact/index', array('id' => $site->id));?>"><?php echo $this->translate('Add a contact') ?></a></td>
+		<?php else : ?>
+		    <td><a style="color: red" href="<?php echo $this->url('siteContact/index', array('id' => $site->id));?>"><?php echo $this->translate('Add a contact') ?></a></td>
+		<?php endif;?>
+	<?php else : ?>
+		<td><a href="<?php echo $this->url('site/detail', array('id' => $site->id));?>"><img height="12" src="/images/zoom_plus_plain.png" alt="edit Responsable" /></a></td>
+	    <td>&nbsp;</td>
+	    <td>&nbsp;</td>
+	<?php endif;?>
+	    <td><?php echo $this->escapeHtml($site->caption);?></td>
+	    <td><?php echo $this->escapeHtml($site->n_fn);?></td>
+	</tr>
+<?php endforeach; ?>
+</table>

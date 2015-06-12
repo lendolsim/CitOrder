@@ -1,0 +1,35 @@
+BEGIN
+	TRUNCATE commande;
+	INSERT INTO commande
+        SELECT 	NULL,
+        		client.id,
+        		site.id,
+        		csv.direction,
+        		NULL, -- libelle
+        		NULL, -- description
+        		NULL, -- comment_resp_livr
+        		NULL, -- resp_id
+        		NULL, -- valideur_id
+        		NULL, -- resp_livr_id
+        		CURRENT_DATE,
+        		CURRENT_DATE,
+        		NULL,
+        		NULL,
+        		csv.date_livr_souhaitee_initiale,
+        		csv.date_livr_souhaitee_actuelle,
+        		NULL, -- date_livr_effective
+        		NULL, -- date_commande_soldee
+        		NULL, -- status
+				CURRENT_TIMESTAMP,
+				NULL,
+				CURRENT_TIMESTAMP,
+				NULL
+        FROM ti_perimetre_commande AS perimetre
+        LEFT OUTER JOIN ti_export_commande AS csv
+        ON csv.direction = perimetre.reference
+        LEFT OUTER JOIN client
+        ON client.nom = csv.deployment_name 
+        LEFT OUTER JOIN site
+        ON site.libelle = perimetre.reference
+        GROUP BY perimetre.reference;
+END
